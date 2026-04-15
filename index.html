@@ -8,9 +8,9 @@
 * {
   box-sizing: border-box !important;
   font-family: "Microsoft YaHei", sans-serif !important;
-  white-space: nowrap !important;
   overflow: visible !important;
 }
+
 html,body { 
   margin:0 !important; 
   padding:12px !important; 
@@ -23,7 +23,7 @@ html,body {
 }
 .title { 
   text-align:center !important; 
-  font-size:24px !important; 
+  font-size:26px !important; 
   font-weight:700 !important; 
   color:#2c3e50 !important; 
   margin-bottom: 6px !important;
@@ -32,16 +32,17 @@ html,body {
   text-align:center !important; 
   color:#7f8c8d !important; 
   margin-bottom: 16px !important;
+  font-size:16px !important;
 }
 
 /* 标题输入框 */
 .title-input {
   display: block !important;
   width: 100% !important;
-  padding: 12px 14px !important;
+  padding: 14px 16px !important;
   border-radius: 12px !important;
   border: 1px solid #dcdfe6 !important;
-  font-size: 16px !important;
+  font-size: 18px !important;
   margin-bottom: 14px !important;
   text-align: center !important;
 }
@@ -50,11 +51,11 @@ html,body {
 .input-box { 
   display: block !important;
   width:100% !important; 
-  height:240px !important; 
-  padding:14px !important; 
+  height:260px !important; 
+  padding:16px !important; 
   border-radius:12px !important; 
   border:1px solid #dcdfe6 !important; 
-  font-size:15px !important;
+  font-size:16px !important;
   margin-bottom: 14px !important;
   white-space: pre-wrap !important;
 }
@@ -63,10 +64,10 @@ html,body {
 .btn { 
   display: block !important;
   width:100% !important; 
-  padding:14px !important; 
+  padding:16px !important; 
   background:#38a169 !important; 
   color:white !important; 
-  font-size:17px !important; 
+  font-size:18px !important;
   font-weight:600 !important; 
   border:none !important; 
   border-radius:12px !important; 
@@ -74,42 +75,75 @@ html,body {
 }
 
 #preview { margin-top:20px !important; }
+
+/* 导出图片核心：紧凑无空白 + 大字 */
 .envelope {
   background:#fff !important; 
   border-radius:20px !important; 
-  padding:24px !important;
-  min-width: 1100px !important;
+  padding:24px 20px !important;
   width: fit-content !important;
+  max-width: none !important;
+  margin:0 auto !important;
 }
 
 .child-item {
   display: flex !important;
   flex-direction: row !important;
   align-items: center !important;
-  padding: 12px 10px !important;
+  padding: 18px 12px !important;
   border-bottom: 1px dashed #eee !important;
-  gap: 12px !important;
+  gap: 18px !important;
+  white-space: nowrap !important;
+  font-size: 22px !important; /* 手机大字 */
 }
-.child-item.upgraded { background:#f8fff9 !important; border-radius:10px !important; }
+.child-item.upgraded { 
+  background:#f8fff9 !important; 
+  border-radius:12px !important; 
+}
 
-.name { font-weight:600 !important; color:#2d3748 !important; min-width:100px !important; }
-.level { font-weight:600 !important; color:#3182ce !important; min-width:60px !important; }
-.progress { color:#dd6b20 !important; }
-.tip { color:#22543d !important; font-weight:500 !important; }
-.point-num { color:#dd6b20 !important; font-weight:700 !important; }
-.bracket-text { color:#805ad5 !important; }
-.up-tag { color:#c53030 !important; font-weight:700 !important; }
+.name { 
+  font-weight:700 !important; 
+  color:#2d3748 !important; 
+  min-width:150px !important; 
+  font-size: 22px !important; 
+}
+.level { 
+  font-weight:700 !important; 
+  color:#3182ce !important; 
+  min-width:90px !important; 
+  font-size: 22px !important; 
+}
+.progress { 
+  color:#dd6b20 !important; 
+  font-size: 22px !important; 
+}
+.tip { 
+  color:#22543d !important; 
+  font-weight:500 !important; 
+  font-size: 22px !important; 
+}
+.point-num { 
+  color:#dd6b20 !important; 
+  font-weight:700 !important; 
+  font-size: 24px !important; 
+}
+.bracket-text { 
+  color:#805ad5 !important; 
+  font-size: 22px !important; 
+}
+.up-tag { 
+  color:#c53030 !important; 
+  font-weight:700 !important; 
+  font-size: 22px !important; 
+}
 </style>
 </head>
 <body>
 <div class="container">
   <div class="title">围棋进步汇报生成器</div>
-  <div class="subtitle">可自定义标题，所有内容强制单行显示</div>
+  <div class="subtitle">可自定义标题，导出手机超清大图</div>
 
-  <!-- 自定义标题输入框 -->
-  <input type="text" class="title-input" id="customTitle" placeholder="自定义标题（不填则默认：围棋进步汇报）">
-
-  <!-- 内容输入框 -->
+  <input type="text" class="title-input" id="customTitle" placeholder="自定义标题（不填默认：围棋进步汇报）">
   <textarea id="input" class="input-box" placeholder="请粘贴学生信息：
 邓惠心 8k，离升级还差70分（赢4局左右）【跟上周比离升级又近一步！】"></textarea>
 
@@ -119,7 +153,6 @@ html,body {
 
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script>
-// 解析文本
 function parseText(text) {
   text = text.replace(/\r/g, '');
   const lines = text.split(/[\n,，]+/).map(l=>l.trim()).filter(l=>l);
@@ -139,12 +172,10 @@ function parseText(text) {
   return res;
 }
 
-// 数字高亮
 function renderNum(s){
   return s.replace(/(\d+)/g,'<span class="point-num">$1</span>');
 }
 
-// 生成 + 导出图片
 function generateAndImage() {
   const data = parseText(document.getElementById('input').value);
   const customTitle = document.getElementById('customTitle').value.trim();
@@ -155,7 +186,7 @@ function generateAndImage() {
 
   const env = document.createElement('div');
   env.className = 'envelope';
-  env.innerHTML = `<div style="text-align:center;font-size:24px;font-weight:700;color:#c53030;margin-bottom:20px">${finalTitle}</div>`;
+  env.innerHTML = `<div style="text-align:center;font-size:34px;font-weight:700;color:#c53030;margin-bottom:20px">${finalTitle}</div>`;
 
   data.forEach(c=>{
     const item = document.createElement('div');
@@ -177,16 +208,18 @@ function generateAndImage() {
 
   setTimeout(()=>{
     html2canvas(env, {
-      useCORS:true, scale:2, logging:false,
+      useCORS:true, 
+      scale: 3.0,      // 手机超清画质
+      logging:false,
       backgroundColor:'#ffffff',
       width: env.scrollWidth
     }).then(canvas=>{
       const a = document.createElement('a');
       a.href = canvas.toDataURL('image/png');
-      a.download = '围棋汇报.png';
+      a.download = finalTitle + '.png';
       a.click();
     });
-  }, 600);
+  }, 800);
 }
 </script>
 </body>
