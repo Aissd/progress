@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>围棋进步汇报生成器</title>
+<style>
+* {
+  box-sizing: border-box !important;
+  font-family: "Microsoft YaHei", sans-serif !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+}
+html,body { 
+  margin:0 !important; 
+  padding:12px !important; 
+  background:#f7f9fc !important; 
+}
+.container { 
+  max-width:1200px !important; 
+  margin:0 auto !important; 
+  display: block !important;
+}
+.title { 
+  text-align:center !important; 
+  font-size:24px !important; 
+  font-weight:700 !important; 
+  color:#2c3e50 !important; 
+  margin-bottom: 6px !important;
+}
+.subtitle { 
+  text-align:center !important; 
+  color:#7f8c8d !important; 
+  margin-bottom: 16px !important;
+}
+
+/* 标题输入框 */
+.title-input {
+  display: block !important;
+  width: 100% !important;
+  padding: 12px 14px !important;
+  border-radius: 12px !important;
+  border: 1px solid #dcdfe6 !important;
+  font-size: 16px !important;
+  margin-bottom: 14px !important;
+  text-align: center !important;
+}
+
+/* 内容输入框 */
+.input-box { 
+  display: block !important;
+  width:100% !important; 
+  height:240px !important; 
+  padding:14px !important; 
+  border-radius:12px !important; 
+  border:1px solid #dcdfe6 !important; 
+  font-size:15px !important;
+  margin-bottom: 14px !important;
+  white-space: pre-wrap !important;
+}
+
+/* 按钮 */
+.btn { 
+  display: block !important;
+  width:100% !important; 
+  padding:14px !important; 
+  background:#38a169 !important; 
+  color:white !important; 
+  font-size:17px !important; 
+  font-weight:600 !important; 
+  border:none !important; 
+  border-radius:12px !important; 
+  cursor:pointer !important;
+}
+
+#preview { margin-top:20px !important; }
+.envelope {
+  background:#fff !important; 
+  border-radius:20px !important; 
+  padding:24px !important;
+  min-width: 1100px !important;
+  width: fit-content !important;
+}
+
+.child-item {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  padding: 12px 10px !important;
+  border-bottom: 1px dashed #eee !important;
+  gap: 12px !important;
+}
+.child-item.upgraded { background:#f8fff9 !important; border-radius:10px !important; }
+
+.name { font-weight:600 !important; color:#2d3748 !important; min-width:100px !important; }
+.level { font-weight:600 !important; color:#3182ce !important; min-width:60px !important; }
+.progress { color:#dd6b20 !important; }
+.tip { color:#22543d !important; font-weight:500 !important; }
+.point-num { color:#dd6b20 !important; font-weight:700 !important; }
+.bracket-text { color:#805ad5 !important; }
+.up-tag { color:#c53030 !important; font-weight:700 !important; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="title">围棋进步汇报生成器</div>
+  <div class="subtitle">可自定义标题，所有内容强制单行显示</div>
+
+  <!-- 自定义标题输入框 -->
+  <input type="text" class="title-input" id="customTitle" placeholder="自定义标题（不填则默认：围棋进步汇报）">
+
+  <!-- 内容输入框 -->
+  <textarea id="input" class="input-box" placeholder="请粘贴学生信息：
+邓惠心 8k，离升级还差70分（赢4局左右）【跟上周比离升级又近一步！】"></textarea>
+
+  <button class="btn" onclick="generateAndImage()">生成并导出图片</button>
+  <div id="preview"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+// 解析文本
+function parseText(text) {
+  text = text.replace(/\r/g, '');
+  const lines = text.split(/[\n,，]+/).map(l=>l.trim()).filter(l=>l);
+  const res = [];
+  lines.forEach(line=>{
+    try{
+      const name = line.split(/\s+/)[0]||'';
+      const level = line.split(/\s+/)[1]||'';
+      const rest = line.replace(name,'').replace(level,'').trim();
+      const bracket = (rest.match(/（([^）]+)）/)||[])[1]||'';
+      const comment = (rest.match(/【([^】]+)】/)||[])[1]||'';
+      const main = rest.replace(/（[^）]+）/,'').replace(/【[^】]+】/,'').trim();
+      const isUp = /升了1级/.test(comment);
+      res.push({name,level,main,bracket,comment,isUp});
+    }catch(e){}
+  })
+  return res;
+}
+
+// 数字高亮
+function renderNum(s){
+  return s.replace(/(\d+)/g,'<span class="point-num">$1</span>');
+}
+
+// 生成 + 导出图片
+function generateAndImage() {
+  const data = parseText(document.getElementById('input').value);
+  const customTitle = document.getElementById('customTitle').value.trim();
+  const finalTitle = customTitle || '围棋进步汇报';
+
+  const p = document.getElementById('preview');
+  p.innerHTML = '';
+
+  const env = document.createElement('div');
+  env.className = 'envelope';
+  env.innerHTML = `<div style="text-align:center;font-size:24px;font-weight:700;color:#c53030;margin-bottom:20px">${finalTitle}</div>`;
+
+  data.forEach(c=>{
+    const item = document.createElement('div');
+    item.className = 'child-item ' + (c.isUp?'upgraded':'');
+    const mainColor = renderNum(c.main);
+    const bracketHtml = c.bracket ? `<span class="bracket-text">（${c.bracket}）</span>` : '';
+    const commentHtml = c.isUp ? `<span class="up-tag">${c.comment}</span>` : c.comment;
+
+    item.innerHTML = `
+      <span class="name">${c.name}</span>
+      <span class="level">${c.level}</span>
+      <span class="progress">${mainColor}${bracketHtml}</span>
+      <span class="tip">${commentHtml}</span>
+    `;
+    env.appendChild(item);
+  });
+
+  p.appendChild(env);
+
+  setTimeout(()=>{
+    html2canvas(env, {
+      useCORS:true, scale:2, logging:false,
+      backgroundColor:'#ffffff',
+      width: env.scrollWidth
+    }).then(canvas=>{
+      const a = document.createElement('a');
+      a.href = canvas.toDataURL('image/png');
+      a.download = '围棋汇报.png';
+      a.click();
+    });
+  }, 600);
+}
+</script>
+</body>
+</html>
